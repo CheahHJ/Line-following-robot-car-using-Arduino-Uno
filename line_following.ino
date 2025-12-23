@@ -2,35 +2,28 @@
 #include <Wire.h>
 #include <PinChangeInterrupt.h>
 
-// ===== LCD Setup =====
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
 bool hasStoppedFor20cm = false;
 
-// ===== Timer & State =====
 unsigned long startTime = 0;
 unsigned long currentTime = 0;
 unsigned long lastLCDUpdate = 0; 
 bool isStopped = false;
 
-// ===== Sensor Pins =====
 const int LEFT_IR = A2;
 const int RIGHT_IR = A3;
 
-// ===== Encoder Pins =====
 const uint8_t encoderRightPin = A5;
 const uint8_t encoderLeftPin = A4;
 
-// ===== Encoder Variables =====
 volatile long rightCount = 0;
 volatile long leftCount = 0;
 
-// ===== Dimensions & Accuracy =====
 const float pulsesPerRev = 40.0; 
 const float wheelDiameter = 6.0;
 const float wheelCircumference = 3.1416 * wheelDiameter; 
 
-// ===== Motor Pins =====
 const int ENA = 3;   
 const int IN1 = 1;   
 const int IN2 = 2;  
@@ -39,11 +32,9 @@ const int ENB = 11;
 const int IN3 = 12;  
 const int IN4 = 13;  
 
-// ===== Speed Settings =====
 int baseSpeed = 85; 
 int turnSpeed = 180; 
 
-// ===== ISR Handlers =====
 void onRightPulse() {
   rightCount++;
 }
@@ -72,7 +63,6 @@ void setup() {
   startTime = millis();
 }
 
-// ===== Motor Functions =====
 void moveForward(int speedLeft, int speedRight) {
   digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
   analogWrite(ENA, speedLeft);
@@ -120,15 +110,12 @@ void loop() {
     return;
   }
 
-  // =====  Calculate Distance =====
   float rightDistance = ((float)rightCount / pulsesPerRev) * wheelCircumference;
   float leftDistance  = ((float)leftCount  / pulsesPerRev) * wheelCircumference;
   float avgDistance   = (rightDistance + leftDistance) / 2.0;
 
-  // =====  Timer Logic =====
   currentTime = millis() - startTime;
 
-  // =====  Update LCD =====
   if (millis() - lastLCDUpdate > 200) {
     lcd.setCursor(0, 0);
     lcd.print("T:");
@@ -144,7 +131,6 @@ void loop() {
     lastLCDUpdate = millis();
   }
 
-  // ===== 4. Read Sensors =====
   int leftValue = analogRead(LEFT_IR);
   int rightValue = analogRead(RIGHT_IR);
   int Threshold = 300;
